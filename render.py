@@ -133,21 +133,21 @@ def compute_world_to_camera_matrix(camera):
 def render(episode):
     bpy.context.scene.render.filepath = "./images/%05d.jpg"%episode
     bpy.ops.render.render(write_still=True)
-    scene = bpy.context.scene
-    tree = bpy.context.scene.node_tree
-    links = tree.links
-    render_node = tree.nodes["Render Layers"]
-    id_mask_node = tree.nodes.new(type="CompositorNodeIDMask")
-    id_mask_node.use_antialiasing = True
-    id_mask_node.index = 1
-    composite = tree.nodes.new(type = "CompositorNodeComposite")
-    links.new(render_node.outputs['IndexOB'], id_mask_node.inputs["ID value"])
-    links.new(id_mask_node.outputs[0], composite.inputs["Image"])
-    scene.render.filepath = 'masks/%05d.jpg'%episode
-    bpy.ops.render.render(write_still=True)
-    for node in tree.nodes:
-        if node.name != "Render Layers":
-            tree.nodes.remove(node)
+    #scene = bpy.context.scene
+    #tree = bpy.context.scene.node_tree
+    #links = tree.links
+    #render_node = tree.nodes["Render Layers"]
+    #id_mask_node = tree.nodes.new(type="CompositorNodeIDMask")
+    #id_mask_node.use_antialiasing = True
+    #id_mask_node.index = 1
+    #composite = tree.nodes.new(type = "CompositorNodeComposite")
+    #links.new(render_node.outputs['IndexOB'], id_mask_node.inputs["ID value"])
+    #links.new(id_mask_node.outputs[0], composite.inputs["Image"])
+    #scene.render.filepath = 'masks/%05d.jpg'%episode
+    #bpy.ops.render.render(write_still=True)
+    #for node in tree.nodes:
+    #    if node.name != "Render Layers":
+    #        tree.nodes.remove(node)
     
 def annotate(obj, episode, render_size, transformation_matrix):
     scene = bpy.context.scene
@@ -185,7 +185,7 @@ def generate_state(obj):
     dy = np.random.uniform(0,0.7,1)*random.choice((-1,1))
     dz = np.random.uniform(0.4,0.8,1)
     obj.location = (dx,dy,dz)
-    obj.scale = [np.random.uniform(0.7, 1.3)]*3
+    #obj.scale = [np.random.uniform(0.7, 1.3)]*3
     obj.rotation_euler = (random.uniform(-np.pi/2 - np.pi/4, -np.pi/2 + np.pi/4), \
                           random.uniform(-np.pi/4, np.pi/4), \
                           random.uniform(-np.pi/4, np.pi/4)) 
@@ -193,7 +193,7 @@ def generate_state(obj):
 
 def generate_dataset(iters=1):
     render_size = (640,480)
-    set_render_settings('CYCLES', render_size)
+    set_render_settings('BLENDER_WORKBENCH', render_size)
     clear_scene()
     camera = add_camera_light()
     transformation_matrix = compute_world_to_camera_matrix(camera)
@@ -214,4 +214,4 @@ def generate_dataset(iters=1):
     #np.save('annots/extrinsicsTrans.npy', extrinsicsTrans)
 
 if __name__ == '__main__':
-    generate_dataset(10)
+    generate_dataset(300)

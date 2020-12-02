@@ -32,8 +32,10 @@ def show_annots(idx, save=True):
     metadata = np.load("annots/%05d.npy"%idx, allow_pickle=True)
     trans = metadata.item().get("trans")
     rot_euler = metadata.item().get("rot")
+    print(trans, rot_euler)
     rot_mat = R.from_euler('xyz', rot_euler).as_matrix()
-    axes = np.eye(3)
+    #axes = np.eye(3)
+    axes = np.float32([[1,0,0],[0,1,0],[0,0,-1]])
     axes = rot_mat@axes
     axes += trans
     axes_projected = []
