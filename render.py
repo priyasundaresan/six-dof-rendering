@@ -33,7 +33,10 @@ def clear_scene():
 
 def add_camera_light():
     bpy.ops.object.light_add(type='SUN', radius=1, location=(0,0,0))
-    bpy.ops.object.camera_add(location=(0,0,8), rotation=(0,0,0))
+    #bpy.ops.object.camera_add(location=(0,0,8), rotation=(0,0,0))
+    #bpy.ops.object.camera_add(location=(0,0,0.5), rotation=(0,0,0))
+    bpy.ops.object.camera_add(location=(0,0,0.75), rotation=(0,0,0))
+    #bpy.ops.object.camera_add(location=(0,0,3), rotation=(0,0,0))
     bpy.context.scene.camera = bpy.context.object
     return bpy.context.object
 
@@ -53,6 +56,7 @@ def set_render_settings(engine, render_size, generate_masks=True):
     scene.render.resolution_y = render_height
     scene.use_nodes = True
     scene.render.image_settings.file_format='JPEG'
+    scene.view_settings.exposure = 1.3
     if engine == 'BLENDER_WORKBENCH':
         scene.render.image_settings.color_mode = 'RGB'
         scene.display_settings.display_device = 'None'
@@ -151,9 +155,8 @@ def render(episode):
     
 def annotate(obj, episode, render_size, transformation_matrix):
     scene = bpy.context.scene
-    rot = np.array(obj.matrix_world.to_euler()) # This is in world!!
     trans = np.array(obj.matrix_world.translation)
-    rot_euler = R.from_euler('xyz', obj.matrix_world.inverted().to_euler()).as_euler('xyz', degrees=False)
+    rot_euler = obj.matrix_world.inverted().to_euler()
     metadata = {"trans": trans, "rot": np.array(rot_euler)}
     #axes = np.eye(3)
     #axes = rmat@axes
@@ -170,30 +173,50 @@ def annotate(obj, episode, render_size, transformation_matrix):
     np.save('annots/%05d.npy'%episode,metadata) 
 
 def generate_monkey():
-    bpy.ops.mesh.primitive_monkey_add(size=2, enter_editmode=False, align='WORLD', location=(0, 0, 0))
+    #bpy.ops.mesh.primitive_monkey_add(size=2, enter_editmode=False, align='WORLD', location=(0, 0, 0))
+    bpy.ops.import_mesh.stl(filepath="cyl.stl")
+    #bpy.ops.transform.resize(value=(0.7, 1,1))
     bpy.ops.object.editmode_toggle()
+    #bpy.ops.object.modifier_add(type='SUBSURF')
+    #bpy.context.object.modifiers["Subdivision"].levels=3 # Smooths the cloth so it doesn't look blocky
+    bpy.ops.mesh.subdivide(number_cuts=20)
+    bpy.ops.object.editmode_toggle()
+    bpy.ops.object.modifier_add(type='SIMPLE_DEFORM')
+    bpy.context.object.modifiers["SimpleDeform"].deform_axis = 'Z'
+    bpy.context.object.modifiers["SimpleDeform"].deform_method = 'BEND'
+    bpy.context.object.modifiers["SimpleDeform"].angle = 0
+    #bpy.ops.object.shade_smooth()
+
+    #bpy.ops.object.editmode_toggle()
     #bpy.ops.mesh.subdivide(number_cuts=1) # Tune this number for detail
-    bpy.ops.object.modifier_add(type='SUBSURF')
-    bpy.context.object.modifiers["Subdivision"].levels=3 # Smooths the cloth so it doesn't look blocky
-    bpy.ops.object.editmode_toggle()
+    #bpy.ops.object.modifier_add(type='SUBSURF')
+    #bpy.context.object.modifiers["Subdivision"].levels=3 # Smooths the cloth so it doesn't look blocky
+    #bpy.ops.object.editmode_toggle()
     obj = bpy.context.object
     obj.pass_index = 1
     return obj
 
 def generate_state(obj):
-    dx = np.random.uniform(0,0.7,1)*random.choice((-1,1))
-    dy = np.random.uniform(0,0.7,1)*random.choice((-1,1))
-    dz = np.random.uniform(0.4,0.8,1)
-    obj.location = (dx,dy,dz)
+    #dx = np.random.uniform(0,0.7,1)*random.choice((-1,1))
+    #dy = np.random.uniform(0,0.7,1)*random.choice((-1,1))
+    #dz = np.random.uniform(0.4,0.8,1)
+    #obj.location = (dx,dy,dz)
     #obj.scale = [np.random.uniform(0.7, 1.3)]*3
-    obj.rotation_euler = (random.uniform(-np.pi/2 - np.pi/4, -np.pi/2 + np.pi/4), \
-                          random.uniform(-np.pi/4, np.pi/4), \
+    #obj.rotation_euler = (random.uniform(-np.pi/2 - np.pi/4, -np.pi/2 + np.pi/4), \
+    #                      random.uniform(-np.pi/4, np.pi/4), \
+    #                      random.uniform(-np.pi/4, np.pi/4)) 
+    obj.rotation_euler = (random.uniform(-np.pi/6, np.pi/6), \
+                          random.uniform(-np.pi/6, np.pi/6), \
                           random.uniform(-np.pi/4, np.pi/4)) 
+    obj.modifiers["SimpleDeform"].angle = random.uniform(0, 1.5*np.pi)*random.choice((-1,1))
+    #obj.rotation_euler = (0,0,random.uniform(-np.pi/4, np.pi/4)) 
     return obj.location, obj.rotation_euler
 
 def generate_dataset(iters=1):
-    render_size = (640,480)
-    set_render_settings('BLENDER_WORKBENCH', render_size)
+    #render_size = (640,480)
+    render_size = (200,200)
+    #set_render_settings('BLENDER_WORKBENCH', render_size)
+    set_render_settings('BLENDER_EEVEE', render_size)
     clear_scene()
     camera = add_camera_light()
     transformation_matrix = compute_world_to_camera_matrix(camera)
@@ -214,4 +237,4 @@ def generate_dataset(iters=1):
     #np.save('annots/extrinsicsTrans.npy', extrinsicsTrans)
 
 if __name__ == '__main__':
-    generate_dataset(300)
+    generate_dataset(375)
