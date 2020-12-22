@@ -177,7 +177,7 @@ def generate_obj():
 def generate_state(obj, trans_x_range=(0,0), trans_y_range=(0,0), trans_z_range=(0,0),\
                         rot_x_range=(-np.pi/6, np.pi/6), \
                         rot_y_range=(-np.pi/6, np.pi/6), \
-                        rot_z_range=(-np.pi/4, np.pi/4)):
+                        rot_z_range=(-np.pi/2, np.pi/2)):
     obj.location += Vector((random.uniform(trans_x_range[0], trans_x_range[1]), \
                             random.uniform(trans_y_range[0], trans_y_range[1]), \
                             random.uniform(trans_z_range[0], trans_z_range[1]))) 
@@ -228,4 +228,4 @@ def generate_dataset(iters=1):
     np.save('annots/cam_to_world.npy', np.array(transformation_matrix))
 
 if __name__ == '__main__':
-    generate_dataset(10)
+    generate_dataset(2000)

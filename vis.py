@@ -11,9 +11,9 @@ from mathutils import *
 
 def draw(img, source_px, imgpts):
     imgpts = imgpts.astype(int)
-    img = cv2.line(img, source_px, tuple(imgpts[0].ravel()), (255,0,0), 3)
-    img = cv2.line(img, source_px, tuple(imgpts[1].ravel()), (0,255,0), 3)
-    img = cv2.line(img, source_px, tuple(imgpts[2].ravel()), (0,0,255), 3)
+    img = cv2.line(img, source_px, tuple(imgpts[0].ravel()), (255,0,0), 2)
+    img = cv2.line(img, source_px, tuple(imgpts[1].ravel()), (0,255,0), 2)
+    img = cv2.line(img, source_px, tuple(imgpts[2].ravel()), (0,0,255), 2)
     return img
 
 def project_3d_point(transformation_matrix,p,render_size):
@@ -36,6 +36,7 @@ def show_annots(idx, save=True):
     rot_mat = R.from_euler('xyz', rot_euler).as_matrix()
     #axes = np.eye(3)
     axes = np.float32([[1,0,0],[0,1,0],[0,0,-1]])*0.3
+    #axes = np.float32([[1,0,0],[0,1,0]])*0.3
     axes = rot_mat@axes
     axes += trans
     axes_projected = []
@@ -46,6 +47,7 @@ def show_annots(idx, save=True):
     center_projected = tuple(center_projected)
     vis = img.copy()
     vis = draw(vis,center_projected,axes_projected)
+    vis = cv2.resize(vis,(200,200))
     print("Annotating %06d"%idx)
     if save:
     	annotated_filename = "%05d.jpg"%idx

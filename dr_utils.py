@@ -29,9 +29,9 @@ def randomize_light():
     light_obj.data.color = tuple(np.random.uniform(0.8,1,3))
     #light_obj.location = Vector(np.random.uniform(-4,4,3).tolist())
     #light_obj.location[2] = np.random.uniform(4,7)
-    light_obj.rotation_euler[0] += np.random.uniform(-np.pi/30, np.pi/30)
-    light_obj.rotation_euler[1] += np.random.uniform(-np.pi/30, np.pi/30)
-    light_obj.rotation_euler[2] += np.random.uniform(-np.pi/30, np.pi/30)
+    light_obj.rotation_euler[0] = np.random.uniform(-np.pi/30, np.pi/30)
+    light_obj.rotation_euler[1] = np.random.uniform(-np.pi/30, np.pi/30)
+    light_obj.rotation_euler[2] = np.random.uniform(-np.pi/30, np.pi/30)
 
 def randomize_camera():
     scene = bpy.context.scene
