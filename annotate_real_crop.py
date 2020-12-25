@@ -18,13 +18,13 @@ class KeypointsAnnotator:
         pass
 
     def load_image(self, img):
-        self.img = img
+        self.img = img.copy()
         self.click_to_kpt = {0:"R", 1:"L"}
 
     def mouse_callback(self, event, x, y, flags, param):
         cv2.imshow("pixel_selector", self.img)
         if event == cv2.EVENT_LBUTTONDBLCLK:
-            cv2.putText(img, self.click_to_kpt[len(self.clicks)], (x,y-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255),2)
+            cv2.putText(self.img, self.click_to_kpt[len(self.clicks)], (x,y-30), cv2.FONT_HERSHEY_SIMPLEX, 0.5, (0,0,255),2)
             self.clicks.append([x, y])
             print (x, y)
             cv2.circle(self.img, (x, y), 3, (255, 0, 0), -1)
@@ -52,6 +52,8 @@ class KeypointsAnnotator:
     def save_heatmap(self, img_outpath, img, point):
         # make heatmap output with point
         width, height, _ = img.shape
+        cv2.imshow("", img)
+        cv2.waitKey(0)
         gauss_sigma = 8
         gauss = gauss_2d_batch(width, height, gauss_sigma, np.array([point[0]]), np.array([point[1]]))
         gauss = gauss.reshape((width, height, 1))
@@ -92,3 +94,5 @@ if __name__ == '__main__':
             annots = np.array(annots)
             np.save(keypoints_outpath, annots)
             new_idx += 1
+        if i > 2:
+            break
