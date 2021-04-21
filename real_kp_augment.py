@@ -50,8 +50,8 @@ def augment(input, annots, output_dir_img, output_annot_dir, new_idx, show=False
 
 
 if __name__ == '__main__':
-    img_dir = 'real_crop_train/images'
-    annots_dir = 'real_crop_train/annots'
+    img_dir = 'images'
+    annots_dir = 'annots'
     if os.path.exists("./aug"):
         os.system("rm -rf ./aug")
     os.makedirs("./aug")
@@ -59,16 +59,17 @@ if __name__ == '__main__':
     os.makedirs("./aug/annots")
     output_dir_img = "aug/images"
     output_annot_dir = "aug/annots"
+    os.system("cp annots/cam_to_world.npy %s/"%output_annot_dir)
     idx = len(os.listdir(img_dir))
     orig_len = len(os.listdir(img_dir))
     num_augs_per = 7
     new_idx = 0
     for i in range(orig_len):
         print(i, orig_len)
-        # img = cv2.imread(os.path.join(img_dir, '%05d.jpg'%i))
-        img = np.load(os.path.join(img_dir, '%05d.npy'%i), allow_pickle=True)
+        img = cv2.imread(os.path.join(img_dir, '%05d.jpg'%i))
+        #img = np.load(os.path.join(img_dir, '%05d.npy'%i), allow_pickle=True)
         annots = np.load(os.path.join(annots_dir, '%05d.npy'%i), allow_pickle=True)
-        # cv2.imwrite(os.path.join(output_dir_img, "%05d.jpg"%new_idx), img)
+        cv2.imwrite(os.path.join(output_dir_img, "%05d.jpg"%new_idx), img)
         np.save(os.path.join(output_dir_img, '%05d.npy'%new_idx), img)
         np.save(os.path.join(output_annot_dir, '%05d.npy'%new_idx), annots)
         new_idx += 1
