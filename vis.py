@@ -32,7 +32,9 @@ def show_annots(idx, save=True):
     metadata = np.load("annots/%05d.npy"%idx, allow_pickle=True)
     trans = metadata.item().get("trans")
     rot_euler = metadata.item().get("rot")
-    print(trans, rot_euler)
+    pixel = metadata.item().get("pixel")
+    pixel = (200/60)*pixel
+    pixel = tuple(pixel.astype(int))
     rot_mat = R.from_euler('xyz', rot_euler).as_matrix()
     #axes = np.eye(3)
     axes = np.float32([[1,0,0],[0,1,0],[0,0,-1]])*0.3
@@ -48,6 +50,7 @@ def show_annots(idx, save=True):
     vis = img.copy()
     vis = draw(vis,center_projected,axes_projected)
     vis = cv2.resize(vis,(200,200))
+    vis = cv2.circle(vis, pixel, 5, (0,0,0), -1)
     print("Annotating %06d"%idx)
     if save:
     	annotated_filename = "%05d.jpg"%idx

@@ -9,17 +9,22 @@ import imgaug as ia
 from imgaug import augmenters as iaa
 from imgaug.augmentables import Keypoint, KeypointsOnImage
 
-sometimes = lambda aug: iaa.Sometimes(0.5, aug)
+sometimes = lambda aug: iaa.Sometimes(0.3, aug)
 
 AUGS = [ 
     iaa.LinearContrast((0.95, 1.05), per_channel=0.25), 
-    iaa.Add((-10, 10), per_channel=False),
+    iaa.Add((-10, 20), per_channel=False),
     iaa.GammaContrast((0.85, 1.15)),
-    #iaa.GaussianBlur(sigma=(0.5, 0.8)),
-    iaa.GaussianBlur(sigma=(0,1.7)),
-    iaa.MultiplySaturation((0.95, 1.05)),
+    iaa.GaussianBlur(sigma=(1,1.75)),
+    #iaa.Cutout(fill_mode="constant", cval=(0, 50), nb_iterations=(1, 3), size=0.25, squared=False, fill_per_channel=0.5),
+    iaa.MultiplySaturation((0.85, 1.15)),
     iaa.AdditiveGaussianNoise(scale=(0, 0.0125*255)),
-    #iaa.flip.Fliplr(0.5),
+    sometimes(
+        iaa.CropAndPad(
+        percent=(0.1, 0.2),
+        pad_mode=["constant"],
+        pad_cval=(0, 20)
+    ))
     ]
 
 seq = iaa.Sequential(AUGS, random_order=True) 
@@ -41,7 +46,7 @@ if __name__ == '__main__':
     output_annot_dir = annots_dir
     idx = len(os.listdir(img_dir))
     orig_len = len(os.listdir(img_dir))
-    num_augs_per = 1
+    num_augs_per = 2
     for i in range(orig_len):
         print(i, orig_len)
         img = cv2.imread(os.path.join(img_dir, '%05d.jpg'%i))

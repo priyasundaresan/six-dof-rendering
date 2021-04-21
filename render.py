@@ -36,7 +36,6 @@ def clear_scene():
 
 def add_camera_light():
     bpy.ops.object.light_add(type='SUN', radius=1, location=(0,0,0))
-    #bpy.ops.object.camera_add(location=(0,0,0.75), rotation=(0,0,0))
     bpy.ops.object.camera_add(location=(0,0,0.8), rotation=(0,0,0))
     bpy.context.scene.camera = bpy.context.object
     return bpy.context.object
@@ -157,8 +156,10 @@ def render(episode):
 def annotate(obj, episode, render_size, transformation_matrix):
     scene = bpy.context.scene
     trans = np.array(obj.matrix_world.translation)
+    camera_coord = bpy_extras.object_utils.world_to_camera_view(scene, bpy.context.scene.camera, obj.matrix_world.translation)
+    pixel = [round(camera_coord.x * render_size[0]), round(render_size[1] - camera_coord.y * render_size[1])]
     rot_euler = obj.matrix_world.inverted().to_euler()
-    metadata = {"trans": trans, "rot": np.array(rot_euler)}
+    metadata = {"trans": trans, "rot": np.array(rot_euler), "pixel":np.array(pixel)}
     np.save('annots/%05d.npy'%episode,metadata) 
 
 def generate_obj():
@@ -207,25 +208,40 @@ def generate_dataset(iters=1):
     transformation_matrix = compute_world_to_camera_matrix(camera)
     num_annotations = 100
 
-    color=(194/255., 195/255., 127/255.)
+    color_white=(194/255., 195/255., 127/255.)
     color_dark = (30/255., 30/255., 30/255.)
+    color_red=(120/255., 50/255., 29/255.)
+
+    color_choices = [color_white, color_red]
+    #color_choices = [color_white]
 
     obj = generate_obj()
     distractor_cyl_1 = generate_obj()
     distractor_cyl_1.location = (0, 0, -0.3)
     for episode in range(iters):
-        generate_state(obj)
+        #generate_state(obj, trans_x_range=(-0.03, 0.03), trans_y_range=(-0.03, 0.03))
+        generate_state(obj, trans_x_range=(-0.06, 0.06), trans_y_range=(-0.06, 0.06))
         randomize_light()
+        color = random.choice(color_choices)
         color_randomize(obj, color)
         color_randomize(table, color_dark)
+        color = random.choice(color_choices)
         color_randomize(distractor_cyl_1, color)
         trans_x_range = np.array([0.0,0.05])*random.choice((-1,1))
         trans_y_range = np.array([0.0,0.05])*random.choice((-1,1))
         trans_z_range = (-0.05, -0.075)
         generate_state(distractor_cyl_1, trans_x_range, trans_y_range)
+        if random.random() < 0.3:
+            distractor_cyl_1.hide_set(True)
+            distractor_cyl_1.hide_render = True
+        else:
+            distractor_cyl_1.hide_set(False)
+            distractor_cyl_1.hide_render = False
+
         render(episode)
         annotate(obj, episode, render_size, transformation_matrix)
+        obj.location = np.zeros(3)
     np.save('annots/cam_to_world.npy', np.array(transformation_matrix))
 
 if __name__ == '__main__':
-    generate_dataset(2000)
+    generate_dataset(10)

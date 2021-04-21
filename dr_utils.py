@@ -16,10 +16,9 @@ def set_viewport_shading(mode):
 
 def randomize_light():
     scene = bpy.context.scene
-    #scene.view_settings.exposure = random.uniform(2.5,4)
-    #scene.view_settings.exposure = random.uniform(2.5,3.7)
-    #scene.view_settings.exposure = random.uniform(2,3.7)
-    scene.view_settings.exposure = random.uniform(0.6,1.8)
+    #scene.view_settings.exposure = random.uniform(0.6,1.8)
+    #scene.view_settings.exposure = random.uniform(0.6,2.2)
+    scene.view_settings.exposure = random.uniform(1.0,2.2)
     light_data = bpy.data.lights['Light']
     light_data.color = tuple(np.random.uniform(0,1,3))
     light_data.energy = np.random.uniform(300,600)
@@ -72,9 +71,10 @@ def texture_randomize(obj, textures_folder):
     pattern(obj, img_filepath)
 
 def color_randomize(obj, color=None):
-    noise = (np.random.standard_normal(3))/70.0
+    #noise = (np.random.standard_normal(3))/70.0
+    noise = (np.random.standard_normal(3))/10.0
     r,g,b = np.array(color) + noise
-    color = [r,g,b,1]
+    color = [r,g,b,0.1]
     if '%sColor' % obj.name in bpy.data.materials:
         mat = bpy.data.materials['%sColor'%obj.name]
     else:
