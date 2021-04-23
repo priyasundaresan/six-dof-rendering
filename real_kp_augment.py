@@ -67,7 +67,6 @@ if __name__ == '__main__':
     for i in range(orig_len):
         print(i, orig_len)
         img = cv2.imread(os.path.join(img_dir, '%05d.jpg'%i))
-        #img = np.load(os.path.join(img_dir, '%05d.npy'%i), allow_pickle=True)
         annots = np.load(os.path.join(annots_dir, '%05d.npy'%i), allow_pickle=True)
         cv2.imwrite(os.path.join(output_dir_img, "%05d.jpg"%new_idx), img)
         np.save(os.path.join(output_annot_dir, '%05d.npy'%new_idx), annots)
