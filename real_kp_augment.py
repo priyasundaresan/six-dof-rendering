@@ -70,7 +70,7 @@ if __name__ == '__main__':
         #img = np.load(os.path.join(img_dir, '%05d.npy'%i), allow_pickle=True)
         annots = np.load(os.path.join(annots_dir, '%05d.npy'%i), allow_pickle=True)
         cv2.imwrite(os.path.join(output_dir_img, "%05d.jpg"%new_idx), img)
-        np.save(os.path.join(output_dir_img, '%05d.npy'%new_idx), img)
+        #np.save(os.path.join(output_dir_img, '%05d.npy'%new_idx), img)
         np.save(os.path.join(output_annot_dir, '%05d.npy'%new_idx), annots)
         new_idx += 1
         for _ in range(num_augs_per):
